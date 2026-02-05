@@ -1,76 +1,57 @@
-
 import React from 'react';
 import { EventStatus } from '../types';
-import { Users, Play, Trophy, ChevronLeft } from 'lucide-react';
 
-interface NavigationProps {
+interface Props {
   currentStatus: EventStatus;
   activeTab: string;
   onTabChange: (tab: string) => void;
   onExit: () => void;
   title: string;
+  onRename: (newTitle: string) => void; // 🆕
 }
 
-const Navigation: React.FC<NavigationProps> = ({ currentStatus, activeTab, onTabChange, onExit, title }) => {
-  const tabs = [
-    { id: 'REGISTRATION', label: 'Deelnemers', icon: Users },
-    { id: 'ROUND1', label: 'Ronde 1', icon: Play },
-    { id: 'ROUND2', label: 'Ronde 2', icon: Play },
-    { id: 'RESULTS', label: 'Uitslag', icon: Trophy },
-  ];
+const Navigation: React.FC<Props> = ({
+  currentStatus,
+  activeTab,
+  onTabChange,
+  onExit,
+  title,
+  onRename
+}) => {
 
-  const isLocked = (status: string) => {
-    const order = ['REGISTRATION', 'ROUND1', 'ROUND2', 'RESULTS'];
-    const currentOrder = order.indexOf(currentStatus);
-    const tabOrder = order.indexOf(status);
-    return tabOrder > currentOrder;
+  const handleRename = () => {
+    const newTitle = prompt('Nieuwe naam voor deze kaartmiddag:', title);
+    if (newTitle && newTitle.trim() !== '' && newTitle !== title) {
+      onRename(newTitle.trim());
+    }
   };
 
   return (
-    <nav className="sticky top-0 z-[999] bg-slate-900 text-white shadow-xl print:hidden">
-      {/* Bovenste bar */}
-      <div className="flex items-center justify-between px-4 py-1.5 border-b-2 border-slate-950">
-        <button 
-          onClick={onExit}
-          className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 px-4 py-1 rounded-xl border-2 border-slate-600 font-black transition-all active:scale-95 text-yellow-400 group cursor-pointer"
+    <div className="bg-white shadow p-4 flex flex-col gap-3">
+      <div className="flex justify-between items-center">
+        <h1
+          className="text-2xl font-bold cursor-pointer"
+          onClick={handleRename}
+          title="Klik om naam te wijzigen"
         >
-          <ChevronLeft size={20} />
-          <span className="text-xl uppercase tracking-wider">Menu</span>
-        </button>
-        <h1 className="text-xl font-black uppercase tracking-tight truncate px-3 text-white max-w-[50%]">
-          {title || "Kaartavond"}
+          {title}
         </h1>
-        {/* Ruimte voor sync-indicator */}
-        <div className="w-12" />
+        <button onClick={onExit} className="text-sm text-blue-600">
+          Terug naar overzicht
+        </button>
       </div>
-      
-      {/* Tab bar */}
-      <div className="grid grid-cols-4 gap-1 p-1 bg-slate-950">
-        {tabs.map((tab) => {
-          const locked = isLocked(tab.id);
-          const active = activeTab === tab.id;
-          const Icon = tab.icon;
 
-          return (
-            <button
-              key={tab.id}
-              disabled={locked}
-              onClick={() => onTabChange(tab.id)}
-              className={`
-                flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border-b-4 transition-all
-                ${locked ? 'opacity-20 cursor-not-allowed' : 'cursor-pointer'}
-                ${active ? 'bg-blue-600 border-yellow-400 scale-105 z-10' : 'bg-slate-800 border-slate-700'}
-              `}
-            >
-              <Icon size={24} className={active ? 'text-white' : 'text-slate-400'} />
-              <span className={`text-sm font-black uppercase mt-0.5 text-center leading-tight ${active ? 'text-white' : 'text-slate-400'}`}>
-                {tab.label}
-              </span>
-            </button>
-          );
-        })}
+      <div className="flex gap-2 flex-wrap">
+        <button onClick={() => onTabChange('REGISTRATION')} className={activeTab==='REGISTRATION'?'font-bold':''}>Registratie</button>
+        {currentStatus !== EventStatus.REGISTRATION && (
+          <>
+            <button onClick={() => onTabChange('ROUND1')} className={activeTab==='ROUND1'?'font-bold':''}>Ronde 1</button>
+            <button onClick={() => onTabChange('ROUND2')} className={activeTab==='ROUND2'?'font-bold':''}>Ronde 2</button>
+            <button onClick={() => onTabChange('RESULTS')} className={activeTab==='RESULTS'?'font-bold':''}>Uitslag</button>
+          </>
+        )}
       </div>
-    </nav>
+    </div>
   );
 };
 
