@@ -1,77 +1,89 @@
 import React from 'react';
-import { EventStatus } from '../types';
+import { EventStatus, SyncStatus } from '../types';
+import { Users, Play, Trophy, ChevronLeft, Cloud, CloudOff, CloudSync } from 'lucide-react';
 
-interface Props {
+interface NavigationProps {
   currentStatus: EventStatus;
   activeTab: string;
   onTabChange: (tab: string) => void;
   onExit: () => void;
   title: string;
-  onRename: (newTitle: string) => void;
+  syncStatus: SyncStatus;
 }
 
-const Navigation: React.FC<Props> = ({
-  currentStatus,
-  activeTab,
-  onTabChange,
-  onExit,
+const Navigation: React.FC<NavigationProps> = ({ 
+  currentStatus, 
+  activeTab, 
+  onTabChange, 
+  onExit, 
   title,
-  onRename
+  syncStatus 
 }) => {
+  const tabs = [
+    { id: 'REGISTRATION', label: 'Deelnemers', icon: Users },
+    { id: 'ROUND1', label: 'Ronde 1', icon: Play },
+    { id: 'ROUND2', label: 'Ronde 2', icon: Play },
+    { id: 'RESULTS', label: 'Uitslag', icon: Trophy },
+  ];
 
-  const handleRename = () => {
-    const newTitle = prompt('Nieuwe naam voor deze kaartmiddag:', title);
-    if (newTitle && newTitle.trim() !== '' && newTitle !== title) {
-      onRename(newTitle.trim());
+  const isLocked = (status: string) => {
+    const order = ['REGISTRATION', 'ROUND1', 'ROUND2', 'RESULTS'];
+    const currentOrder = order.indexOf(currentStatus);
+    const tabOrder = order.indexOf(status);
+    return tabOrder > currentOrder;
+  };
+
+  const getSyncIcon = () => {
+    switch (syncStatus) {
+      case 'online': return <Cloud size={24} className="text-green-400" title="Verbonden met cloud" />;
+      case 'syncing': return <CloudSync size={24} className="text-yellow-400 animate-pulse" title="Synchroniseren..." />;
+      case 'error': return <CloudOff size={24} className="text-red-400" title="Verbindingsfout" />;
+      default: return <CloudOff size={24} className="text-slate-500" title="Lokaal (Geen cloud)" />;
     }
   };
 
-  const tabStyle = (tab: string) =>
-    `px-4 py-2 rounded-lg font-medium transition ${
-      activeTab === tab
-        ? 'bg-blue-600 text-white shadow'
-        : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-    }`;
-
   return (
-    <div className="bg-white shadow-md p-4 flex flex-col gap-4">
-      <div className="flex justify-between items-center">
-        <h1
-          className="text-2xl font-bold text-slate-800 cursor-pointer hover:underline"
-          onClick={handleRename}
-          title="Klik om naam te wijzigen"
-        >
-          {title}
-        </h1>
-
-        <button
+    <nav className="sticky top-0 z-[999] bg-slate-900 text-white shadow-xl print:hidden">
+      <div className="flex items-center justify-between px-4 py-1.5 border-b-2 border-slate-950">
+        <button 
           onClick={onExit}
-          className="px-3 py-2 bg-slate-300 hover:bg-slate-400 rounded-lg text-slate-800 font-medium"
+          className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 px-4 py-1 rounded-xl border-2 border-slate-600 font-black transition-all active:scale-95 text-yellow-400 group cursor-pointer"
         >
-          Terug naar overzicht
+          <ChevronLeft size={20} />
+          <span className="text-xl uppercase tracking-wider">Menu</span>
         </button>
+        <h1 className="text-xl font-black uppercase tracking-tight truncate px-3 text-white max-w-[50%]">
+          {title || "Kaartavond"}
+        </h1>
+        <div className="flex items-center justify-center w-12 h-10">
+          {getSyncIcon()}
+        </div>
       </div>
-
-      <div className="flex gap-3 flex-wrap">
-        <button onClick={() => onTabChange('REGISTRATION')} className={tabStyle('REGISTRATION')}>
-          Registratie
-        </button>
-
-        {currentStatus !== EventStatus.REGISTRATION && (
-          <>
-            <button onClick={() => onTabChange('ROUND1')} className={tabStyle('ROUND1')}>
-              Ronde 1
+      <div className="flex bg-slate-800 overflow-x-auto no-scrollbar">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const locked = isLocked(tab.id);
+          const active = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              disabled={locked}
+              onClick={() => onTabChange(tab.id)}
+              className={`flex-1 min-w-[120px] py-4 flex flex-col items-center gap-1 border-b-4 transition-all ${
+                active 
+                ? 'border-yellow-400 bg-slate-700 text-yellow-400' 
+                : locked 
+                  ? 'border-transparent text-slate-600 opacity-50 cursor-not-allowed' 
+                  : 'border-transparent text-slate-400 hover:bg-slate-700'
+              }`}
+            >
+              <Icon size={24} />
+              <span className="text-sm font-black uppercase tracking-tighter">{tab.label}</span>
             </button>
-            <button onClick={() => onTabChange('ROUND2')} className={tabStyle('ROUND2')}>
-              Ronde 2
-            </button>
-            <button onClick={() => onTabChange('RESULTS')} className={tabStyle('RESULTS')}>
-              Uitslag
-            </button>
-          </>
-        )}
+          );
+        })}
       </div>
-    </div>
+    </nav>
   );
 };
 
