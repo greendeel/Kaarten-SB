@@ -3,6 +3,7 @@ import { CardEvent, EventStatus, GameType, Table } from './types';
 import DashboardView from './components/DashboardView';
 import RegistrationView from './components/RegistrationView';
 import TableAssignmentView from './components/TableAssignmentView';
+import RoundView from './components/RoundView';
 import Navigation from './components/Navigation';
 import LoginView from './components/LoginView';
 import { getEvents, saveEvent, deleteEvent as deleteEventFromDB, generateId } from './services/storage';
@@ -14,6 +15,7 @@ const App: React.FC = () => {
   const [events, setEvents] = useState<CardEvent[]>([]);
   const [activeEventId, setActiveEventId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('REGISTRATION');
+  const [isScoring, setIsScoring] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => localStorage.getItem('kajuit_auth') === 'true');
 
   const loadEvents = async () => {
@@ -69,13 +71,28 @@ const App: React.FC = () => {
     setActiveTab('ROUND1');
   };
 
-  // 🪑 Tafels opslaan
   const setRoundTables = async (tables: Table[]) => {
     if (!activeEvent) return;
     const updatedRounds = [...activeEvent.rounds];
     updatedRounds[0] = { ...updatedRounds[0], tables };
     await updateEvent({ ...activeEvent, rounds: updatedRounds });
     setActiveTab('ROUND1_PLAY');
+  };
+
+  // 🧮 SCORE OPSLAAN (REALTIME)
+  const updateScore = async (pid: string, score: number) => {
+    if (!activeEvent) return;
+    const updatedRounds = [...activeEvent.rounds];
+    const currentRound = { ...updatedRounds[0] };
+    currentRound.scores = { ...currentRound.scores, [pid]: score };
+    updatedRounds[0] = currentRound;
+    await updateEvent({ ...activeEvent, rounds: updatedRounds });
+  };
+
+  const finishRound = async () => {
+    if (!activeEvent) return;
+    await updateEvent({ ...activeEvent, status: EventStatus.RESULTS });
+    setActiveTab('RESULTS');
   };
 
   if (!isAuthenticated) {
@@ -125,13 +142,27 @@ const App: React.FC = () => {
         />
       )}
 
-      {activeTab === 'ROUND1' && activeEvent!.rounds[0] && activeEvent!.rounds[0].tables.length === 0 && (
+      {activeTab === 'ROUND1' && activeEvent!.rounds[0].tables.length === 0 && (
         <TableAssignmentView
           participants={activeEvent!.participants}
           initialTables={[]}
           onConfirm={setRoundTables}
           onUpdateParticipantGame={() => {}}
           roundNumber={1}
+        />
+      )}
+
+      {activeTab === 'ROUND1_PLAY' && (
+        <RoundView
+          round={activeEvent!.rounds[0]}
+          participants={activeEvent!.participants}
+          onScoreChange={updateScore}
+          onFinishRound={finishRound}
+          onResetTables={() => setActiveTab('ROUND1')}
+          onUpdateParticipantTable={() => {}}
+          isScoring={isScoring}
+          setIsScoring={setIsScoring}
+          isEventFinished={activeEvent!.status === EventStatus.RESULTS}
         />
       )}
     </div>
