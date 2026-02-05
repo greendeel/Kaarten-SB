@@ -45,7 +45,7 @@ const Navigation: React.FC<NavigationProps> = ({
   return (
     <nav className="sticky top-0 z-[999] bg-slate-900 text-white shadow-xl print:hidden">
       
-      {/* Nog compactere bovenbalk */}
+      {/* Compacte bovenbalk */}
       <div className="flex items-center justify-between px-4 py-0.5 border-b-2 border-slate-950">
         <button 
           onClick={onExit}
@@ -64,8 +64,8 @@ const Navigation: React.FC<NavigationProps> = ({
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex bg-slate-800 overflow-x-auto no-scrollbar">
+      {/* Tabs met afgeronde hoeken en zwarte scheiding */}
+      <div className="flex bg-slate-800 overflow-x-auto no-scrollbar px-2 py-1 gap-1">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const locked = isLocked(tab.id);
@@ -76,12 +76,12 @@ const Navigation: React.FC<NavigationProps> = ({
               key={tab.id}
               disabled={locked}
               onClick={() => onTabChange(tab.id)}
-              className={`flex-1 min-w-[120px] py-2.5 flex flex-col items-center gap-1 border-b-4 transition-all ${
+              className={`flex-1 min-w-[120px] py-2.5 flex flex-col items-center gap-1 border-b-4 rounded-xl border border-black transition-all ${
                 active 
                   ? 'border-yellow-400 bg-blue-600 text-white'
                   : locked 
-                    ? 'border-slate-600 text-slate-600 opacity-50 cursor-not-allowed'
-                    : 'border-slate-500 text-slate-400 hover:bg-slate-700'
+                    ? 'border-slate-600 text-slate-600 opacity-50 cursor-not-allowed bg-slate-800'
+                    : 'border-slate-500 text-slate-400 hover:bg-slate-700 bg-slate-800'
               }`}
             >
               <Icon size={20} />
