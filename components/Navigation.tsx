@@ -45,7 +45,7 @@ const Navigation: React.FC<NavigationProps> = ({
   return (
     <nav className="sticky top-0 z-[999] bg-slate-900 text-white shadow-xl print:hidden">
       
-      {/* Bovenbalk iets compacter */}
+      {/* Compacte bovenbalk */}
       <div className="flex items-center justify-between px-4 py-1 border-b-2 border-slate-950">
         <button 
           onClick={onExit}
@@ -78,10 +78,10 @@ const Navigation: React.FC<NavigationProps> = ({
               onClick={() => onTabChange(tab.id)}
               className={`flex-1 min-w-[120px] py-3 flex flex-col items-center gap-1 border-b-4 transition-all ${
                 active 
-                ? 'border-blue-500 bg-blue-600 text-white'  // ✅ Felblauw vakje + witte tekst
-                : locked 
-                  ? 'border-transparent text-slate-600 opacity-50 cursor-not-allowed' 
-                  : 'border-transparent text-slate-400 hover:bg-slate-700'
+                  ? 'border-yellow-400 bg-blue-600 text-white'   // 🟡 Gele streep onder blauw vak
+                  : locked 
+                    ? 'border-slate-700 text-slate-600 opacity-50 cursor-not-allowed'
+                    : 'border-slate-700 text-slate-400 hover:bg-slate-700'
               }`}
             >
               <Icon size={22} />
