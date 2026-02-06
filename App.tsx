@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CardEvent, EventStatus, GameType, Table } from './types';
 import DashboardView from './components/DashboardView';
 import RegistrationView from './components/RegistrationView';
@@ -19,18 +19,9 @@ const App: React.FC = () => {
   const [isScoring, setIsScoring] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => localStorage.getItem('kajuit_auth') === 'true');
 
-  const isLoadingRef = useRef(false);
-  const isCreatingEventRef = useRef(false);
-
   const loadEvents = async () => {
-    if (isLoadingRef.current) return;
-    isLoadingRef.current = true;
-    try {
-      const data = await getEvents();
-      setEvents(data);
-    } finally {
-      isLoadingRef.current = false;
-    }
+    const data = await getEvents();
+    setEvents(data);
   };
 
   useEffect(() => {
@@ -47,28 +38,21 @@ const App: React.FC = () => {
     await saveEvent(updatedEvent);
   };
 
-  const activeEvent = events.find(e => e.id === activeEventId) || null;
+  const activeEvent = events.find(e => e.id === activeEventId);
 
   const createEvent = async (title: string) => {
-    if (isCreatingEventRef.current) return;
-    isCreatingEventRef.current = true;
+    const newEvent: CardEvent = {
+      id: generateId(),
+      title,
+      date: new Date().toLocaleDateString('nl-NL'),
+      status: EventStatus.REGISTRATION,
+      participants: [],
+      rounds: []
+    };
 
-    try {
-      const newEvent: CardEvent = {
-        id: generateId(),
-        title,
-        date: new Date().toLocaleDateString('nl-NL'),
-        status: EventStatus.REGISTRATION,
-        participants: [],
-        rounds: []
-      };
-
-      await updateEvent(newEvent);
-      setActiveEventId(newEvent.id);
-      setActiveTab('REGISTRATION');
-    } finally {
-      isCreatingEventRef.current = false;
-    }
+    await updateEvent(newEvent);
+    setActiveEventId(newEvent.id);
+    setActiveTab('REGISTRATION');
   };
 
   const deleteEvent = async (id: string) => {
@@ -100,7 +84,6 @@ const App: React.FC = () => {
     if (!activeEvent) return;
     await updateEvent({ ...activeEvent, status: EventStatus.ROUND1, rounds: [{ number: 1, tables: [], scores: {} }] });
     setActiveTab('ROUND1');
-    setIsScoring(false);
   };
 
   const startRound2 = async () => {
@@ -111,18 +94,13 @@ const App: React.FC = () => {
     setIsScoring(false);
   };
 
-const setRoundTables = async (roundIndex: number, tables: Table[]) => {
-  if (!activeEvent) return;
-
-  const updatedRounds = [...activeEvent.rounds];
-  updatedRounds[roundIndex] = { ...updatedRounds[roundIndex], tables };
-
-  await updateEvent({ ...activeEvent, rounds: updatedRounds });
-
-  // 🔥 Forceer dat RoundView getoond wordt
-  setActiveTab(roundIndex === 0 ? 'ROUND1' : 'ROUND2');
-  setIsScoring(false);
-};
+  const setRoundTables = async (roundIndex: number, tables: Table[]) => {
+    if (!activeEvent) return;
+    const updatedRounds = [...activeEvent.rounds];
+    updatedRounds[roundIndex] = { ...updatedRounds[roundIndex], tables };
+    await updateEvent({ ...activeEvent, rounds: updatedRounds });
+    setIsScoring(false);
+  };
 
   const updateScore = async (roundIndex: number, pid: string, score: number) => {
     if (!activeEvent) return;
@@ -168,25 +146,17 @@ const setRoundTables = async (roundIndex: number, tables: Table[]) => {
     );
   }
 
-  if (activeEventId && !activeEvent) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-100 text-slate-600 text-xl">
-        Middag wordt geladen...
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen flex flex-col bg-slate-100">
       <Navigation
-        currentStatus={activeEvent.status}
+        currentStatus={activeEvent!.status}
         activeTab={activeTab}
         onTabChange={setActiveTab}
         onExit={() => setActiveEventId(null)}
-        title={activeEvent.title}
+        title={activeEvent!.title}
       />
 
-      {activeTab === 'REGISTRATION' && (
+      {activeTab === 'REGISTRATION' && activeEvent && (
         <RegistrationView
           participants={activeEvent.participants}
           customNames={{ Jokeren: [], Rikken: [] }}
@@ -198,38 +168,29 @@ const setRoundTables = async (roundIndex: number, tables: Table[]) => {
         />
       )}
 
-{activeTab === 'ROUND1' && activeEvent && activeEvent.status === EventStatus.ROUND1 && (
-  activeEvent.rounds[0]?.tables.length === 0 ? (
-    <TableAssignmentView
-      participants={activeEvent.participants}
-      initialTables={[]}
-      onConfirm={(tables) => setRoundTables(0, tables)}
-      onUpdateParticipantGame={updateParticipantGame}
-      roundNumber={1}
-    />
-  ) : (
-    <RoundView
-      round={activeEvent.rounds[0]}
-      participants={activeEvent.participants}
-      onScoreChange={(pid, score) => updateScore(0, pid, score)}
-      onFinishRound={startRound2}
-      onResetTables={() => setActiveTab('ROUND1')}
-      onUpdateParticipantTable={() => {}}
-      isScoring={isScoring}
-      setIsScoring={setIsScoring}
-      isEventFinished={false}
-    />
-  )
-)}
+      {/* ROUND 1 */}
+      {activeTab === 'ROUND1' && activeEvent?.rounds[0]?.tables.length === 0 && (
+        <TableAssignmentView
+          participants={activeEvent.participants}
+          initialTables={[]}
+          onConfirm={(tables) => setRoundTables(0, tables)}
+          onUpdateParticipantGame={updateParticipantGame}
+          roundNumber={1}
+        />
+      )}
 
-
-      {activeTab === 'ROUND1' && activeEvent.rounds[0]?.tables.length > 0 && (
+      {activeTab === 'ROUND1' && activeEvent?.rounds[0]?.tables.length > 0 && (
         <RoundView
           round={activeEvent.rounds[0]}
           participants={activeEvent.participants}
           onScoreChange={(pid, score) => updateScore(0, pid, score)}
           onFinishRound={startRound2}
-          onResetTables={() => setActiveTab('ROUND1')}
+          onResetTables={() => {
+            const updatedRounds = [...activeEvent.rounds];
+            updatedRounds[0] = { ...updatedRounds[0], tables: [] };
+            updateEvent({ ...activeEvent, rounds: updatedRounds });
+            setIsScoring(false);
+          }}
           onUpdateParticipantTable={() => {}}
           isScoring={isScoring}
           setIsScoring={setIsScoring}
@@ -237,7 +198,8 @@ const setRoundTables = async (roundIndex: number, tables: Table[]) => {
         />
       )}
 
-      {activeTab === 'ROUND2' && activeEvent.rounds[1]?.tables.length === 0 && (
+      {/* ROUND 2 */}
+      {activeTab === 'ROUND2' && activeEvent?.rounds[1]?.tables.length === 0 && (
         <TableAssignmentView
           participants={activeEvent.participants}
           initialTables={[]}
@@ -247,13 +209,18 @@ const setRoundTables = async (roundIndex: number, tables: Table[]) => {
         />
       )}
 
-      {activeTab === 'ROUND2' && activeEvent.rounds[1]?.tables.length > 0 && (
+      {activeTab === 'ROUND2' && activeEvent?.rounds[1]?.tables.length > 0 && (
         <RoundView
           round={activeEvent.rounds[1]}
           participants={activeEvent.participants}
           onScoreChange={(pid, score) => updateScore(1, pid, score)}
           onFinishRound={finishEvent}
-          onResetTables={() => setActiveTab('ROUND2')}
+          onResetTables={() => {
+            const updatedRounds = [...activeEvent.rounds];
+            updatedRounds[1] = { ...updatedRounds[1], tables: [] };
+            updateEvent({ ...activeEvent, rounds: updatedRounds });
+            setIsScoring(false);
+          }}
           onUpdateParticipantTable={() => {}}
           isScoring={isScoring}
           setIsScoring={setIsScoring}
@@ -261,7 +228,7 @@ const setRoundTables = async (roundIndex: number, tables: Table[]) => {
         />
       )}
 
-      {activeTab === 'RESULTS' && (
+      {activeTab === 'RESULTS' && activeEvent && (
         <ResultsView
           participants={activeEvent.participants}
           rounds={activeEvent.rounds}
