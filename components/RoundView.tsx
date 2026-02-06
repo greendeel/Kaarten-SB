@@ -31,25 +31,29 @@ const RoundView: React.FC<Props> = ({
   return (
     <div className="p-4">
 
-      {/* ================= ORIGINELE TAFELWEERGAVE ================= */}
+      {/* ================= TAFELWEERGAVE ================= */}
       {!isScoring && (
         <>
           <h2 className="text-xl font-bold mb-4">Tafelindeling</h2>
 
           <div className="space-y-4">
-            {round.tables.map((table, index) => (
-              <div key={index} className="bg-white rounded-lg shadow p-4">
-                <h3 className="font-semibold mb-2">Tafel {index + 1}</h3>
-                <ul className="space-y-1">
-                  {table.participants.map(pid => (
-                    <li key={pid}>{getName(pid)}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+            {round.tables.map((table: any, index: number) => {
+              const playerIds = table.participants || table.playerIds || table.players || [];
+
+              return (
+                <div key={index} className="bg-white rounded-lg shadow p-4">
+                  <h3 className="font-semibold mb-2">Tafel {index + 1}</h3>
+                  <ul className="space-y-1">
+                    {playerIds.map((pid: string) => (
+                      <li key={pid}>{getName(pid)}</li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
           </div>
 
-          {/* 🆕 ENIGE TOEVOEGING */}
+          {/* ➕ NIEUWE TUSSENSTAP KNOP */}
           <div className="mt-6 flex gap-4">
             <button
               onClick={() => setIsScoring(true)}
@@ -80,7 +84,7 @@ const RoundView: React.FC<Props> = ({
                 <input
                   type="number"
                   className="border rounded px-2 py-1 w-24 text-right"
-                  value={round.scores[p.id] ?? ''}
+                  value={round.scores?.[p.id] ?? ''}
                   onChange={(e) => onScoreChange(p.id, Number(e.target.value))}
                 />
               </div>
