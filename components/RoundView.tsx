@@ -45,8 +45,13 @@ export default function RoundView({
   const getParticipantsForTable = (ids: string[]) =>
     ids.map(id => participants.find(p => p.id === id)).filter(Boolean) as Participant[];
 
+  // ⭐ GEFIXT: som gebruikt nu eerst localScores (wat gebruiker ziet)
   const getTableSum = (ids: string[]) =>
-    ids.reduce((total, pid) => total + (round.scores[pid] || 0), 0);
+    ids.reduce((total, pid) => {
+      const raw = localScores[pid] ?? round.scores[pid] ?? 0;
+      const parsed = parseInt(raw as any);
+      return total + (isNaN(parsed) ? 0 : parsed);
+    }, 0);
 
   const allScoresFilled = round.tables.every(t =>
     t.participantIds.every(pid => localScores[pid] !== undefined && localScores[pid] !== '')
