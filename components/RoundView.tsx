@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Round, Participant, GameType } from '../types';
 
 interface Props {
@@ -22,6 +22,7 @@ const RoundView: React.FC<Props> = ({
   isScoring,
   setIsScoring,
 }) => {
+  const [localScores, setLocalScores] = useState<Record<string, string>>({});
 
   const getName = (id: string) =>
     participants.find(p => p.id === id)?.name || 'Onbekend';
@@ -31,10 +32,16 @@ const RoundView: React.FC<Props> = ({
       ? { bg: 'bg-purple-50', border: 'border-purple-200', title: 'text-purple-700' }
       : { bg: 'bg-orange-50', border: 'border-orange-200', title: 'text-orange-700' };
 
+  const getTableTotal = (pids: string[]) =>
+    pids.reduce((sum, pid) => sum + (round.scores[pid] || 0), 0);
+
+  const isRoundValid = useMemo(() => {
+    return round.tables.every(table => getTableTotal(table.participantIds) === 0);
+  }, [round.tables, round.scores]);
+
   return (
     <div className="p-4 max-w-7xl mx-auto space-y-8 pb-64">
 
-      {/* ================= TAFEL OVERZICHT ================= */}
       {!isScoring && (
         <>
           <div className="bg-yellow-100 p-6 rounded-[2.5rem] border-4 border-yellow-400 text-center">
@@ -51,28 +58,16 @@ const RoundView: React.FC<Props> = ({
               const style = getGameStyle(table.game);
 
               return (
-                <div
-                  key={table.id}
-                  className={`p-6 rounded-[2.5rem] border-4 ${style.border} ${style.bg} space-y-4 shadow-md`}
-                >
+                <div key={table.id} className={`p-6 rounded-[2.5rem] border-4 ${style.border} ${style.bg} space-y-4 shadow-md`}>
                   <div className="flex justify-between items-center border-b-2 border-slate-200 pb-3">
-                    <h3 className={`text-2xl font-black uppercase ${style.title}`}>
-                      {table.game}
-                    </h3>
-                    <span className="text-lg font-bold text-slate-500 uppercase">
-                      Tafel {index + 1}
-                    </span>
+                    <h3 className={`text-2xl font-black uppercase ${style.title}`}>{table.game}</h3>
+                    <span className="text-lg font-bold text-slate-500 uppercase">Tafel {index + 1}</span>
                   </div>
 
                   <div className="grid gap-2">
                     {table.participantIds.map(pid => (
-                      <div
-                        key={pid}
-                        className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center"
-                      >
-                        <span className="text-2xl font-black text-slate-800 leading-none">
-                          {getName(pid)}
-                        </span>
+                      <div key={pid} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                        <span className="text-2xl font-black text-slate-800">{getName(pid)}</span>
                       </div>
                     ))}
                   </div>
@@ -89,17 +84,13 @@ const RoundView: React.FC<Props> = ({
               SCORES INVULLEN
             </button>
 
-            <button
-              onClick={onResetTables}
-              className="text-xl text-slate-600 underline"
-            >
+            <button onClick={onResetTables} className="text-xl text-slate-600 underline">
               Tafels opnieuw indelen
             </button>
           </div>
         </>
       )}
 
-      {/* ================= SCORE INVOER ================= */}
       {isScoring && (
         <>
           <div className="bg-green-100 p-6 rounded-[2.5rem] border-4 border-green-400 text-center">
@@ -114,60 +105,46 @@ const RoundView: React.FC<Props> = ({
           <div className="grid lg:grid-cols-2 gap-6">
             {round.tables.map((table, index) => {
               const style = getGameStyle(table.game);
-
-              const tableTotal = table.participantIds.reduce((sum, pid) => {
-                return sum + (Number(round.scores?.[pid]) || 0);
-              }, 0);
+              const tableTotal = getTableTotal(table.participantIds);
 
               return (
-                <div
-                  key={table.id}
-                  className={`p-6 rounded-[2.5rem] border-4 ${style.border} ${style.bg} space-y-4 shadow-md`}
-                >
+                <div key={table.id} className={`p-6 rounded-[2.5rem] border-4 ${style.border} ${style.bg} space-y-4 shadow-md`}>
                   <div className="flex justify-between items-center border-b-2 border-slate-200 pb-3">
-                    <h3 className={`text-2xl font-black uppercase ${style.title}`}>
-                      {table.game}
-                    </h3>
-                    <span className="text-lg font-bold text-slate-500 uppercase">
-                      Tafel {index + 1}
-                    </span>
+                    <h3 className={`text-2xl font-black uppercase ${style.title}`}>{table.game}</h3>
+                    <span className="text-lg font-bold text-slate-500 uppercase">Tafel {index + 1}</span>
                   </div>
 
                   <div className="grid gap-3">
-                    {table.participantIds.map(pid => (
-                      <div
-                        key={pid}
-                        className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"
-                      >
-                        <span className="text-2xl font-black text-slate-800">
-                          {getName(pid)}
-                        </span>
+                    {table.participantIds.map(pid => {
+                      const displayValue =
+                        localScores[pid] !== undefined
+                          ? localScores[pid]
+                          : round.scores[pid]?.toString() ?? '';
 
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          className="w-20 h-20 text-center text-3xl font-black text-slate-900 rounded-xl border-4 border-slate-200 focus:border-green-500 outline-none bg-slate-50"
-                          value={round.scores?.[pid] ?? ''}
-                          onChange={(e) => {
-                            const val = e.target.value.replace(',', '.');
+                      return (
+                        <div key={pid} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+                          <span className="text-2xl font-black text-slate-800">{getName(pid)}</span>
 
-                            if (val === '' || val === '-') {
-                              onScoreChange(pid, 0);
-                              return;
-                            }
-
-                            if (/^-?\d+$/.test(val)) {
-                              onScoreChange(pid, Number(val));
-                            }
-                          }}
-                        />
-                      </div>
-                    ))}
+                          <input
+                            type="number"
+                            inputMode="numeric"
+                            value={displayValue}
+                            onFocus={(e) => e.target.select()}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setLocalScores(prev => ({ ...prev, [pid]: val }));
+                              const parsed = parseInt(val);
+                              onScoreChange(pid, isNaN(parsed) ? 0 : parsed);
+                            }}
+                            className="w-20 h-20 text-center text-3xl font-black text-slate-900 rounded-xl border-4 border-slate-200 focus:border-green-500 outline-none bg-slate-50"
+                          />
+                        </div>
+                      );
+                    })}
                   </div>
 
                   <div className={`text-center font-black text-lg pt-2 ${tableTotal === 0 ? 'text-green-700' : 'text-red-600'}`}>
-                    Totaal: {tableTotal}
-                    {tableTotal !== 0 && ' (moet 0 zijn)'}
+                    Totaal: {tableTotal} {tableTotal !== 0 && '(moet 0 zijn)'}
                   </div>
                 </div>
               );
@@ -175,24 +152,16 @@ const RoundView: React.FC<Props> = ({
           </div>
 
           <div className="flex gap-6 justify-center pt-10">
-            <button
-              onClick={() => setIsScoring(false)}
-              className="py-5 px-10 rounded-[2rem] text-xl font-black bg-slate-400 text-white shadow-md"
-            >
+            <button onClick={() => setIsScoring(false)} className="py-5 px-10 rounded-[2rem] text-xl font-black bg-slate-400 text-white shadow-md">
               Terug naar tafels
             </button>
 
             <button
               onClick={() => {
-                const allValid = round.tables.every(table =>
-                  table.participantIds.reduce((sum, pid) => sum + (Number(round.scores?.[pid]) || 0), 0) === 0
-                );
-
-                if (!allValid) {
+                if (!isRoundValid) {
                   alert('Niet alle tafels hebben totaal 0.');
                   return;
                 }
-
                 onFinishRound();
               }}
               className="py-5 px-10 rounded-[2rem] text-xl font-black bg-green-600 text-white border-b-[8px] border-green-900 shadow-lg active:translate-y-1 active:border-b-4"
