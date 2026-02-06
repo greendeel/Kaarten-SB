@@ -45,7 +45,6 @@ export default function RoundView({
   const getParticipantsForTable = (ids: string[]) =>
     ids.map(id => participants.find(p => p.id === id)).filter(Boolean) as Participant[];
 
-  // ⭐ GEFIXT: som gebruikt nu eerst localScores (wat gebruiker ziet)
   const getTableSum = (ids: string[]) =>
     ids.reduce((total, pid) => {
       const raw = localScores[pid] ?? round.scores[pid] ?? 0;
@@ -58,7 +57,6 @@ export default function RoundView({
   );
 
   const allTablesZero = round.tables.every(t => getTableSum(t.participantIds) === 0);
-
   const allValid = allScoresFilled && allTablesZero;
 
   const buttonText = round.number === 1 ? 'VERDER NAAR RONDE 2' : 'NAAR EINDUITSLAG';
@@ -141,9 +139,13 @@ export default function RoundView({
           <button
             onClick={onFinishRound}
             disabled={!allValid}
-            className="w-full py-6 rounded-[2rem] text-2xl font-black border-b-[8px] shadow-xl transition-all uppercase flex items-center justify-center gap-3 bg-green-600 border-green-900 text-white active:translate-y-1 active:border-b-4 disabled:bg-slate-300 disabled:border-slate-400 disabled:text-slate-500 disabled:opacity-50"
+            className={`w-full py-6 rounded-[2rem] text-3xl font-black border-b-[10px] shadow-xl uppercase flex items-center justify-center gap-3 transition-all ${
+              allValid
+                ? 'bg-green-600 border-green-900 text-white active:translate-y-2 active:border-b-4'
+                : 'bg-slate-300 border-slate-400 text-slate-500 opacity-50'
+            }`}
           >
-            {allValid && <CheckCircle2 size={28} />}
+            {allValid && <CheckCircle2 size={32} />}
             {buttonText}
           </button>
         </div>
