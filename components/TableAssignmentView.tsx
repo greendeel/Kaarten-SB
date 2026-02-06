@@ -64,7 +64,10 @@ const TableAssignmentView: React.FC<TableAssignmentViewProps> = ({
     return tableCounts;
   };
 
-  const validate = () => participants.length > 0 && participants.every(p => assignments[p.id] && assignments[p.id] > 0);
+  const validate = () => {
+    if (participants.length === 0) return false;
+    return participants.every(p => assignments[p.id] && assignments[p.id] > 0);
+  };
 
   const handleConfirmAction = () => {
     if (!validate()) return;
@@ -89,21 +92,22 @@ const TableAssignmentView: React.FC<TableAssignmentViewProps> = ({
 
   const renderGameList = (game: GameType, color: string, bg: string) => {
     const players = participants.filter(p => p.game === game);
+    const stats = getTableStats(game);
     if (players.length === 0) return null;
 
     return (
       <div className={`p-6 rounded-[2.5rem] border-4 ${bg} space-y-4 shadow-md`}>
         <div className="grid gap-2">
           {players.map(p => (
-            <div key={p.id} className="bg-white py-2 px-3 rounded-xl flex items-center justify-between border border-slate-100 shadow-sm gap-2">
+            <div key={p.id} className="bg-white py-2 px-3 rounded-2xl flex items-center justify-between border border-slate-100 shadow-sm gap-2">
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 <button 
                   onClick={() => onUpdateParticipantGame(p.id, game === 'Jokeren' ? 'Rikken' : 'Jokeren')}
-                  className="p-1 text-slate-300 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all shrink-0"
+                  className="p-1.5 text-slate-300 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all shrink-0"
                 >
                   <ArrowLeftRight size={18} />
                 </button>
-                <span className="text-2xl font-black text-slate-800 truncate">{p.name}</span>
+                <span className="text-2xl font-black text-slate-800 whitespace-nowrap overflow-hidden text-ellipsis leading-none">{p.name}</span>
               </div>
               <input 
                 type="number"
@@ -112,7 +116,7 @@ const TableAssignmentView: React.FC<TableAssignmentViewProps> = ({
                 onChange={(e) => handleTableChange(p.id, e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="?"
-                className="w-14 h-14 text-center text-3xl font-black text-slate-900 rounded-xl border-4 border-slate-100 focus:border-blue-500 outline-none bg-slate-50"
+                className="w-16 h-16 text-center text-3xl font-black text-slate-900 rounded-xl border-4 border-slate-100 focus:border-blue-500 outline-none bg-slate-50"
               />
             </div>
           ))}
