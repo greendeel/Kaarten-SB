@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Participant, GameType } from '../types';
 import { LIST_A, LIST_B } from '../constants';
@@ -115,13 +114,16 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({
                     className={`p-4 rounded-2xl border-2 font-black text-xl transition-all h-24 flex items-center justify-center text-center shadow-sm ${
                       isAdded 
                       ? 'bg-slate-100 border-slate-200 text-slate-300' 
-                      : `bg-white border-slate-200 text-slate-800 hover:border-${activeGame === 'Jokeren' ? 'purple' : 'orange'}-500 active:scale-95`
+                      : activeGame === 'Jokeren'
+                        ? 'bg-white border-slate-200 text-slate-800 hover:border-purple-500 active:scale-95'
+                        : 'bg-white border-slate-200 text-slate-800 hover:border-orange-500 active:scale-95'
                     }`}
                   >
                     {name}
                   </button>
                 );
               })}
+
               <div className="col-span-full mt-4 bg-white p-6 rounded-[2rem] border-2 border-blue-100 shadow-md space-y-3">
                 <h3 className="text-xl font-black text-blue-800 uppercase text-center">Nieuwe naam toevoegen?</h3>
                 <div className="flex gap-3 max-w-3xl mx-auto">
@@ -150,49 +152,51 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({
           <h2 className="text-2xl font-black text-slate-800 uppercase flex items-center gap-3">
             <Users size={32} className="text-blue-600" /> Deelnemers ({participants.length})
           </h2>
+
           <div className="grid md:grid-cols-2 gap-4">
-             <div className="bg-purple-50 p-4 rounded-[2rem] border-2 border-purple-200">
-               <h3 className="text-xl font-black text-purple-700 uppercase mb-3">Jokeren ({jokerenCount})</h3>
-               <div className="space-y-2">
-                 {participants.filter(p => p.game === 'Jokeren').map(p => (
-                   <div key={p.id} className="bg-white p-3 rounded-xl flex justify-between items-center shadow-sm border border-purple-100">
-                     <span className="text-2xl font-black text-slate-700">{p.name}</span>
-                     {!isLocked && (
-                       <div className="flex items-center gap-1">
-                         <button 
-                           onClick={() => handleSwitchGame(p)}
-                           className="text-purple-600 hover:bg-purple-100 p-2 rounded-xl transition-colors"
-                         >
-                           <ArrowLeftRight size={24}/>
-                         </button>
-                         <button onClick={() => onRemoveParticipant(p.id)} className="text-red-400 p-2 hover:bg-red-50 rounded-xl transition-colors"><Trash2 size={24}/></button>
-                       </div>
-                     )}
-                   </div>
-                 ))}
-               </div>
-             </div>
-             <div className="bg-orange-50 p-4 rounded-[2rem] border-2 border-orange-200">
-               <h3 className="text-xl font-black text-orange-700 uppercase mb-3">Rikken ({rikkenCount})</h3>
-               <div className="space-y-2">
-                 {participants.filter(p => p.game === 'Rikken').map(p => (
-                   <div key={p.id} className="bg-white p-3 rounded-xl flex justify-between items-center shadow-sm border border-orange-100">
-                     <span className="text-2xl font-black text-slate-700">{p.name}</span>
-                     {!isLocked && (
-                       <div className="flex items-center gap-1">
-                         <button 
-                           onClick={() => handleSwitchGame(p)}
-                           className="text-orange-600 hover:bg-orange-100 p-2 rounded-xl transition-colors"
-                         >
-                           <ArrowLeftRight size={24}/>
-                         </button>
-                         <button onClick={() => onRemoveParticipant(p.id)} className="text-red-400 p-2 hover:bg-red-50 rounded-xl transition-colors"><Trash2 size={24}/></button>
-                       </div>
-                     )}
-                   </div>
-                 ))}
-               </div>
-             </div>
+            {/* Jokeren */}
+            <div className="bg-purple-50 p-4 rounded-[2rem] border-2 border-purple-200">
+              <h3 className="text-xl font-black text-purple-700 uppercase mb-3">Jokeren ({jokerenCount})</h3>
+              <div className="space-y-2">
+                {participants.filter(p => p.game === 'Jokeren').map(p => (
+                  <div key={p.id} className="bg-white p-3 rounded-xl flex justify-between items-center shadow-sm border border-purple-100">
+                    <span className="text-2xl font-black text-slate-700">{p.name}</span>
+                    {!isLocked && (
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => handleSwitchGame(p)} className="text-purple-600 hover:bg-purple-100 p-2 rounded-xl">
+                          <ArrowLeftRight size={24}/>
+                        </button>
+                        <button onClick={() => onRemoveParticipant(p.id)} className="text-red-400 p-2 hover:bg-red-50 rounded-xl">
+                          <Trash2 size={24}/>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Rikken */}
+            <div className="bg-orange-50 p-4 rounded-[2rem] border-2 border-orange-200">
+              <h3 className="text-xl font-black text-orange-700 uppercase mb-3">Rikken ({rikkenCount})</h3>
+              <div className="space-y-2">
+                {participants.filter(p => p.game === 'Rikken').map(p => (
+                  <div key={p.id} className="bg-white p-3 rounded-xl flex justify-between items-center shadow-sm border border-orange-100">
+                    <span className="text-2xl font-black text-slate-700">{p.name}</span>
+                    {!isLocked && (
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => handleSwitchGame(p)} className="text-orange-600 hover:bg-orange-100 p-2 rounded-xl">
+                          <ArrowLeftRight size={24}/>
+                        </button>
+                        <button onClick={() => onRemoveParticipant(p.id)} className="text-red-400 p-2 hover:bg-red-50 rounded-xl">
+                          <Trash2 size={24}/>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -203,7 +207,7 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({
             <button
               onClick={onStartRound}
               disabled={participants.length === 0}
-              className={`w-full py-6 rounded-[2rem] text-3xl font-black border-b-[10px] shadow-xl transition-all uppercase ${participants.length > 0 ? 'bg-green-600 border-green-900 text-white hover:bg-green-700 active:translate-y-2 active:border-b-4' : 'bg-slate-300 border-slate-400 text-slate-500 opacity-50'}`}
+              className={`w-full py-6 rounded-[2rem] text-3xl font-black border-b-[10px] shadow-xl uppercase ${participants.length > 0 ? 'bg-green-600 border-green-900 text-white active:translate-y-2 active:border-b-4' : 'bg-slate-300 border-slate-400 text-slate-500 opacity-50'}`}
             >
               OPSLAAN & START
             </button>
