@@ -39,6 +39,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({ participants, rounds, title, 
 
   return (
     <div className="p-4 max-w-7xl mx-auto space-y-12 pb-48">
+      {/* SCHERMWERK (ongewijzigd) */}
       <div className="text-center space-y-4 print:hidden">
         <h2 className="text-5xl font-black text-slate-900 uppercase">Einduitslag</h2>
         <div className="flex justify-center gap-4">
@@ -52,9 +53,9 @@ const ResultsView: React.FC<ResultsViewProps> = ({ participants, rounds, title, 
         </div>
       </div>
 
-      {/* PRINTWEERGAVE */}
+      {/* PRINTWEERGAVE — compacter gemaakt */}
       <div className="hidden print:block">
-        <h1 className="text-4xl font-black border-b-8 border-black pb-4 mb-8 uppercase text-center">
+        <h1 className="text-4xl font-black border-b-8 border-black pb-2 mb-4 uppercase text-center leading-tight">
           {title || 'Uitslag Kaartavond'}
         </h1>
 
@@ -63,26 +64,26 @@ const ResultsView: React.FC<ResultsViewProps> = ({ participants, rounds, title, 
           if (sorted.length === 0) return null;
 
           return (
-            <div key={`print-${game}`} className="mb-12 break-after-page">
-              <h2 className="text-3xl font-black border-b-4 border-black mb-6 uppercase">{game}</h2>
+            <div key={`print-${game}`} className="mb-6 break-after-page">
+              <h2 className="text-3xl font-black border-b-4 border-black mb-3 uppercase leading-tight">{game}</h2>
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-b-4 border-slate-300">
-                    <th className="py-2 text-lg uppercase">Nr</th>
-                    <th className="py-2 text-lg uppercase">Naam</th>
-                    <th className="py-2 text-lg uppercase text-right">Score</th>
+                    <th className="py-1 text-lg uppercase">Nr</th>
+                    <th className="py-1 text-lg uppercase">Naam</th>
+                    <th className="py-1 text-lg uppercase text-right">Score</th>
                   </tr>
                 </thead>
                 <tbody>
                   {sorted.map((p, idx) => (
-                    <tr key={p.id} className="border-b-2 border-slate-100">
-                      <td className="py-2 text-lg font-bold">{idx + 1}</td>
-                      <td className="py-2 text-xl font-black">
+                    <tr key={p.id} className="border-b border-slate-200 leading-tight">
+                      <td className="py-1 text-lg font-bold">{idx + 1}</td>
+                      <td className="py-1 text-xl font-black leading-tight">
                         {p.name}
                         {p.hasPositivePrize && " (PRIJS)"}
                         {p.isPoedelPrize && " (POEDELPRIJS)"}
                       </td>
-                      <td className="py-2 text-2xl font-black text-right">{p.total}</td>
+                      <td className="py-1 text-2xl font-black text-right">{p.total}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -92,7 +93,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({ participants, rounds, title, 
         })}
       </div>
 
-      {/* SCHERMWEERGAVE (ongewijzigd) */}
+      {/* SCHERMWEERGAVE LIJST (ongewijzigd) */}
       <div className="print:hidden space-y-16">
         {games.map(game => {
           const sorted = getSortedParticipants(game);
