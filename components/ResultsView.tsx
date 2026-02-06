@@ -9,7 +9,6 @@ interface ResultsViewProps {
   onClose: () => void;
 }
 
-
 const ResultsView: React.FC<ResultsViewProps> = ({ participants, rounds, title, onClose }) => {
   const games: GameType[] = ['Jokeren', 'Rikken'];
 
@@ -53,6 +52,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({ participants, rounds, title, 
         </div>
       </div>
 
+      {/* PRINTWEERGAVE */}
       <div className="hidden print:block">
         <h1 className="text-4xl font-black border-b-8 border-black pb-4 mb-8 uppercase text-center">
           {title || 'Uitslag Kaartavond'}
@@ -68,21 +68,21 @@ const ResultsView: React.FC<ResultsViewProps> = ({ participants, rounds, title, 
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-b-4 border-slate-300">
-                    <th className="py-2 text-xl uppercase">Nr</th>
-                    <th className="py-2 text-xl uppercase">Naam</th>
-                    <th className="py-2 text-xl uppercase text-right">Score</th>
+                    <th className="py-2 text-lg uppercase">Nr</th>
+                    <th className="py-2 text-lg uppercase">Naam</th>
+                    <th className="py-2 text-lg uppercase text-right">Score</th>
                   </tr>
                 </thead>
                 <tbody>
                   {sorted.map((p, idx) => (
                     <tr key={p.id} className="border-b-2 border-slate-100">
-                      <td className="py-2 text-xl font-bold">{idx + 1}</td>
-                      <td className="py-2 text-2xl font-black">
+                      <td className="py-2 text-lg font-bold">{idx + 1}</td>
+                      <td className="py-2 text-xl font-black">
                         {p.name}
                         {p.hasPositivePrize && " (PRIJS)"}
                         {p.isPoedelPrize && " (POEDELPRIJS)"}
                       </td>
-                      <td className="py-2 text-3xl font-black text-right">{p.total}</td>
+                      <td className="py-2 text-2xl font-black text-right">{p.total}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -92,6 +92,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({ participants, rounds, title, 
         })}
       </div>
 
+      {/* SCHERMWEERGAVE (ongewijzigd) */}
       <div className="print:hidden space-y-16">
         {games.map(game => {
           const sorted = getSortedParticipants(game);
