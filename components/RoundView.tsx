@@ -34,9 +34,9 @@ const RoundView: React.FC<Props> = ({
   return (
     <div className="p-4 max-w-7xl mx-auto space-y-8 pb-64">
 
+      {/* ================= TAFEL OVERZICHT ================= */}
       {!isScoring && (
         <>
-          {/* Zelfde titelkaart */}
           <div className="bg-yellow-100 p-6 rounded-[2.5rem] border-4 border-yellow-400 text-center">
             <h2 className="text-3xl font-black text-slate-800 uppercase tracking-tight">
               Tafelindeling
@@ -99,21 +99,32 @@ const RoundView: React.FC<Props> = ({
         </>
       )}
 
+      {/* ================= SCORE INVOER ================= */}
       {isScoring && (
         <>
           <div className="bg-green-100 p-6 rounded-[2.5rem] border-4 border-green-400 text-center">
             <h2 className="text-3xl font-black text-slate-800 uppercase tracking-tight">
               Scores invoeren
             </h2>
+            <p className="text-xl text-slate-600 font-bold italic mt-1">
+              Vul per speler de behaalde score in.
+            </p>
           </div>
 
-          <div className="grid gap-3">
+          <div className="grid gap-4">
             {participants.map(p => (
-              <div key={p.id} className="bg-white rounded-2xl shadow p-4 flex justify-between items-center">
-                <span className="text-2xl font-black">{p.name}</span>
+              <div
+                key={p.id}
+                className="bg-white p-5 rounded-[2rem] border-4 border-slate-100 shadow-md flex items-center justify-between"
+              >
+                <span className="text-3xl font-black text-slate-800">
+                  {p.name}
+                </span>
+
                 <input
                   type="number"
-                  className="w-24 h-14 text-center text-2xl font-black border-4 border-slate-200 rounded-xl"
+                  inputMode="numeric"
+                  className="w-28 h-20 text-center text-4xl font-black text-slate-900 rounded-2xl border-4 border-slate-200 focus:border-green-500 outline-none bg-slate-50"
                   value={round.scores?.[p.id] ?? ''}
                   onChange={(e) => onScoreChange(p.id, Number(e.target.value))}
                 />
@@ -121,17 +132,17 @@ const RoundView: React.FC<Props> = ({
             ))}
           </div>
 
-          <div className="flex gap-4 justify-center pt-6">
+          <div className="flex gap-6 justify-center pt-8">
             <button
               onClick={() => setIsScoring(false)}
-              className="py-4 px-6 rounded-xl text-lg font-bold bg-slate-400 text-white"
+              className="py-5 px-8 rounded-[1.5rem] text-xl font-black bg-slate-400 text-white shadow-md"
             >
-              Terug
+              Terug naar tafels
             </button>
 
             <button
               onClick={onFinishRound}
-              className="py-4 px-6 rounded-xl text-lg font-bold bg-green-600 text-white"
+              className="py-5 px-8 rounded-[1.5rem] text-xl font-black bg-green-600 text-white border-b-[6px] border-green-900 shadow-lg active:translate-y-1 active:border-b-2"
             >
               Ronde afronden
             </button>
