@@ -21,11 +21,12 @@ const RoundView: React.FC<Props> = ({
   onResetTables,
   isScoring,
   setIsScoring,
-  isEventFinished
 }) => {
 
   const getName = (id: string) =>
     participants.find(p => p.id === id)?.name || 'Onbekend';
+
+  const tables = round?.tables || [];
 
   return (
     <div className="p-4 flex flex-col gap-6">
@@ -36,19 +37,22 @@ const RoundView: React.FC<Props> = ({
           <h2 className="text-2xl font-bold">Tafelindeling</h2>
 
           <div className="grid gap-4">
-            {round.tables.map((table, index) => (
-              <div key={index} className="bg-white rounded-xl shadow p-4">
-                <h3 className="font-bold mb-2">Tafel {index + 1}</h3>
-                <ul className="space-y-1">
-                  {table.participants.map(pid => (
-                    <li key={pid}>{getName(pid)}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+            {tables.map((table: any, index: number) => {
+              const playerIds = table.participants || table.playerIds || table.players || [];
+
+              return (
+                <div key={index} className="bg-white rounded-xl shadow p-4">
+                  <h3 className="font-bold mb-2">Tafel {index + 1}</h3>
+                  <ul className="space-y-1">
+                    {playerIds.map((pid: string) => (
+                      <li key={pid}>{getName(pid)}</li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
           </div>
 
-          {/* 👉 NIEUWE KNOP */}
           <button
             onClick={() => setIsScoring(true)}
             className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-lg"
@@ -77,7 +81,7 @@ const RoundView: React.FC<Props> = ({
                 <input
                   type="number"
                   className="border rounded px-2 py-1 w-24 text-right"
-                  value={round.scores[p.id] ?? ''}
+                  value={round.scores?.[p.id] ?? ''}
                   onChange={(e) => onScoreChange(p.id, Number(e.target.value))}
                 />
               </div>
