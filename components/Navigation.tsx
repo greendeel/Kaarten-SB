@@ -1,6 +1,6 @@
 import React from 'react';
-import { EventStatus, SyncStatus } from '../types';
-import { Users, Play, Trophy, ChevronLeft, Cloud, CloudOff, CloudSync } from 'lucide-react';
+import { EventStatus } from '../types';
+import { Users, Play, Trophy, ChevronLeft } from 'lucide-react';
 
 interface NavigationProps {
   currentStatus: EventStatus;
@@ -8,7 +8,6 @@ interface NavigationProps {
   onTabChange: (tab: string) => void;
   onExit: () => void;
   title: string;
-  syncStatus: SyncStatus;
 }
 
 const Navigation: React.FC<NavigationProps> = ({ 
@@ -16,8 +15,7 @@ const Navigation: React.FC<NavigationProps> = ({
   activeTab, 
   onTabChange, 
   onExit, 
-  title,
-  syncStatus 
+  title
 }) => {
   const tabs = [
     { id: 'REGISTRATION', label: 'Deelnemers', icon: Users },
@@ -33,19 +31,10 @@ const Navigation: React.FC<NavigationProps> = ({
     return tabOrder > currentOrder;
   };
 
-  const getSyncIcon = () => {
-    switch (syncStatus) {
-      case 'online': return <Cloud size={20} className="text-green-400" title="Verbonden met cloud" />;
-      case 'syncing': return <CloudSync size={20} className="text-yellow-400 animate-pulse" title="Synchroniseren..." />;
-      case 'error': return <CloudOff size={20} className="text-red-400" title="Verbindingsfout" />;
-      default: return <CloudOff size={20} className="text-slate-500" title="Lokaal (Geen cloud)" />;
-    }
-  };
-
   return (
     <nav className="sticky top-0 z-[999] bg-slate-900 text-white shadow-xl print:hidden">
       
-      {/* Bovenbalk met gelijke ruimte boven en onder */}
+      {/* Bovenbalk */}
       <div className="flex items-center justify-between px-4 py-2 border-b-2 border-slate-950">
         <button 
           onClick={onExit}
@@ -55,13 +44,12 @@ const Navigation: React.FC<NavigationProps> = ({
           <span className="text-base uppercase tracking-wider">Menu</span>
         </button>
 
-        <h1 className="text-base font-black uppercase tracking-tight truncate px-3 text-white max-w-[50%]">
+        <h1 className="text-base font-black uppercase tracking-tight truncate px-3 text-white max-w-[60%] text-center">
           {title || "Kaartavond"}
         </h1>
 
-        <div className="flex items-center justify-center w-9 h-6">
-          {getSyncIcon()}
-        </div>
+        {/* lege ruimte zodat titel mooi gecentreerd blijft */}
+        <div className="w-16" />
       </div>
 
       {/* Tabs */}
