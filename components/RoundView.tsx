@@ -7,6 +7,7 @@ interface RoundViewProps {
   onScoreChange: (participantId: string, score: number) => void;
 }
 
+
 export default function RoundView({ round, participants, onScoreChange }: RoundViewProps) {
   const [localScores, setLocalScores] = useState<Record<string, string>>({});
 
