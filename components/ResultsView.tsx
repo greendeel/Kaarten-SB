@@ -9,6 +9,7 @@ interface ResultsViewProps {
   onClose: () => void;
 }
 
+
 const ResultsView: React.FC<ResultsViewProps> = ({ participants, rounds, title, onClose }) => {
   const games: GameType[] = ['Jokeren', 'Rikken'];
 
