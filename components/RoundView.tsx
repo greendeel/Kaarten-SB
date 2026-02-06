@@ -6,7 +6,7 @@ interface RoundViewProps {
   round: Round;
   participants: Participant[];
   onScoreChange: (participantId: string, score: number) => void;
-  onFinishRound: () => void;          // ← juiste callback
+  onFinishRound: () => void;
   onResetTables: () => void;
   onUpdateParticipantTable: () => void;
   isScoring: boolean;
@@ -28,13 +28,35 @@ export default function RoundView({
     onScoreChange(participantId, isNaN(parsed) ? 0 : parsed);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const inputs = Array.from(document.querySelectorAll('input[type="number"]')) as HTMLInputElement[];
+      const currentIndex = inputs.indexOf(e.currentTarget);
+      if (currentIndex > -1 && currentIndex < inputs.length - 1) {
+        inputs[currentIndex + 1].focus();
+        inputs[currentIndex + 1].select();
+      } else if (allValid) {
+        onFinishRound();
+      }
+    }
+  };
+
   const getParticipantsForTable = (ids: string[]) =>
     ids.map(id => participants.find(p => p.id === id)).filter(Boolean) as Participant[];
 
   const getTableSum = (ids: string[]) =>
     ids.reduce((total, pid) => total + (round.scores[pid] || 0), 0);
 
-  const allTablesValid = round.tables.every(t => getTableSum(t.participantIds) === 0);
+  const allScoresFilled = round.tables.every(t =>
+    t.participantIds.every(pid => localScores[pid] !== undefined && localScores[pid] !== '')
+  );
+
+  const allTablesZero = round.tables.every(t => getTableSum(t.participantIds) === 0);
+
+  const allValid = allScoresFilled && allTablesZero;
+
+  const buttonText = round.number === 1 ? 'VERDER NAAR RONDE 2' : 'NAAR EINDUITSLAG';
 
   return (
     <div className="p-4 max-w-7xl mx-auto space-y-8 pb-56">
@@ -85,6 +107,7 @@ export default function RoundView({
                       inputMode="numeric"
                       value={localScores[player.id] ?? round.scores[player.id] ?? ''}
                       onChange={e => handleScoreInput(player.id, e.target.value)}
+                      onKeyDown={handleKeyDown}
                       className="w-24 h-16 text-center text-3xl font-black text-slate-900 rounded-xl border-4 border-slate-100 focus:border-blue-500 outline-none bg-slate-50"
                     />
                   </div>
@@ -104,17 +127,18 @@ export default function RoundView({
         })}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-slate-100 to-transparent z-50 pointer-events-none">
-        <div className="max-w-md mx-auto pointer-events-auto">
-          <button
-            onClick={onFinishRound}
-            disabled={!allTablesValid}
-            className="w-full py-6 rounded-[2rem] text-2xl font-black border-b-[8px] shadow-xl transition-all uppercase flex items-center justify-center bg-green-600 border-green-900 text-white active:translate-y-1 active:border-b-4 disabled:bg-slate-300 disabled:border-slate-400 disabled:text-slate-500 disabled:opacity-50"
-          >
-            VERDER NAAR RONDE 2
-          </button>
+      {allValid && (
+        <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-slate-100 to-transparent z-50 pointer-events-none">
+          <div className="max-w-md mx-auto pointer-events-auto">
+            <button
+              onClick={onFinishRound}
+              className="w-full py-6 rounded-[2rem] text-2xl font-black border-b-[8px] shadow-xl transition-all uppercase flex items-center justify-center bg-green-600 border-green-900 text-white active:translate-y-1 active:border-b-4"
+            >
+              {buttonText}
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
     </div>
   );
