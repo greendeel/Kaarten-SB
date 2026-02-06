@@ -198,15 +198,30 @@ const setRoundTables = async (roundIndex: number, tables: Table[]) => {
         />
       )}
 
-      {activeTab === 'ROUND1' && activeEvent.rounds[0]?.tables.length === 0 && (
-        <TableAssignmentView
-          participants={activeEvent.participants}
-          initialTables={[]}
-          onConfirm={(tables) => setRoundTables(0, tables)}
-          onUpdateParticipantGame={updateParticipantGame}
-          roundNumber={1}
-        />
-      )}
+{activeTab === 'ROUND1' && activeEvent && activeEvent.status === EventStatus.ROUND1 && (
+  activeEvent.rounds[0]?.tables.length === 0 ? (
+    <TableAssignmentView
+      participants={activeEvent.participants}
+      initialTables={[]}
+      onConfirm={(tables) => setRoundTables(0, tables)}
+      onUpdateParticipantGame={updateParticipantGame}
+      roundNumber={1}
+    />
+  ) : (
+    <RoundView
+      round={activeEvent.rounds[0]}
+      participants={activeEvent.participants}
+      onScoreChange={(pid, score) => updateScore(0, pid, score)}
+      onFinishRound={startRound2}
+      onResetTables={() => setActiveTab('ROUND1')}
+      onUpdateParticipantTable={() => {}}
+      isScoring={isScoring}
+      setIsScoring={setIsScoring}
+      isEventFinished={false}
+    />
+  )
+)}
+
 
       {activeTab === 'ROUND1' && activeEvent.rounds[0]?.tables.length > 0 && (
         <RoundView
