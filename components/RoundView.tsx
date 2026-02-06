@@ -6,10 +6,10 @@ interface RoundViewProps {
   round: Round;
   participants: Participant[];
   onScoreChange: (participantId: string, score: number) => void;
-  onConfirmRound?: () => void;
+  onContinue: () => void; // weer verplicht
 }
 
-export default function RoundView({ round, participants, onScoreChange, onConfirmRound }: RoundViewProps) {
+export default function RoundView({ round, participants, onScoreChange, onContinue }: RoundViewProps) {
   const [localScores, setLocalScores] = useState<Record<string, string>>({});
 
   const handleScoreInput = (participantId: string, value: string) => {
@@ -97,9 +97,9 @@ export default function RoundView({ round, participants, onScoreChange, onConfir
       <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-slate-100 to-transparent z-50 pointer-events-none">
         <div className="max-w-md mx-auto pointer-events-auto">
           <button
-            onClick={() => onConfirmRound && onConfirmRound()}
+            onClick={onContinue}
             disabled={!allTablesValid}
-            className="w-full py-8 rounded-[2rem] text-3xl font-black border-b-[8px] shadow-xl transition-all uppercase flex items-center justify-center bg-green-600 border-green-900 text-white active:translate-y-1 active:border-b-4 disabled:bg-slate-300 disabled:border-slate-400 disabled:text-slate-500 disabled:opacity-50"
+            className="w-full py-6 rounded-[2rem] text-2xl font-black border-b-[8px] shadow-xl transition-all uppercase flex items-center justify-center bg-green-600 border-green-900 text-white active:translate-y-1 active:border-b-4 disabled:bg-slate-300 disabled:border-slate-400 disabled:text-slate-500 disabled:opacity-50"
           >
             VERDER NAAR RONDE 2
           </button>
