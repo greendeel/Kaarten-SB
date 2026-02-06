@@ -32,11 +32,10 @@ const Navigation: React.FC<NavigationProps> = ({
   };
 
   return (
-    <nav className="sticky top-0 z-[999] bg-slate-900 text-white shadow-xl print:hidden !h-fit">
-
+    <nav className="sticky top-0 z-[999] bg-slate-900 text-white shadow-xl print:hidden">
       
       {/* Bovenbalk */}
-      <div className="flex items-center justify-between px-4 py-1.5 border-b-2 border-slate-950">
+      <div className="flex items-center justify-between px-4 py-1.5 border-b border-slate-800">
         <button 
           onClick={onExit}
           className="self-center flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 px-3 h-9 rounded-lg border border-slate-600 font-black transition-all active:scale-95 text-yellow-400 group cursor-pointer"
@@ -53,7 +52,7 @@ const Navigation: React.FC<NavigationProps> = ({
       </div>
 
       {/* Tabs */}
-      <div className="flex bg-slate-800 overflow-x-auto no-scrollbar px-2 py-0 gap-1">
+      <div className="flex bg-slate-700/70 overflow-x-auto no-scrollbar px-2 py-0 gap-1">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const locked = isLocked(tab.id);
