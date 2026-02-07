@@ -27,18 +27,18 @@ const TableAssignmentView: React.FC<TableAssignmentViewProps> = ({
         </p>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         {tables.map((table) => (
           <div
             key={table.id}
-            className={`p-5 rounded-[2.5rem] border-4 shadow-md space-y-3 ${
+            className={`p-4 rounded-[2.5rem] border-4 shadow-md space-y-2 ${
               table.game === 'Jokeren'
                 ? 'bg-purple-50 border-purple-200'
                 : 'bg-orange-50 border-orange-200'
             }`}
           >
             {/* Tafel kop */}
-            <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+            <div className="flex justify-between items-center border-b border-slate-200 pb-1.5">
               <h3
                 className={`text-2xl font-black uppercase ${
                   table.game === 'Jokeren'
@@ -54,11 +54,11 @@ const TableAssignmentView: React.FC<TableAssignmentViewProps> = ({
             </div>
 
             {/* Spelers */}
-            <div className="grid gap-2">
+            <div className="grid gap-1.5">
               {table.participants.map((p) => (
                 <div
                   key={p.id}
-                  className="bg-white p-2 rounded-2xl flex items-center justify-between border border-slate-100 shadow-sm gap-2"
+                  className="bg-white p-1.5 rounded-2xl flex items-center justify-between border border-slate-100 shadow-sm gap-2"
                 >
                   <span className="text-2xl font-black text-slate-800 leading-none">
                     {p.name}
